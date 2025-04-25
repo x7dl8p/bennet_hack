@@ -242,35 +242,35 @@ export default function VisualizationPanel({
               className="flex flex-col flex-1 overflow-hidden"
             >
               <div className="overflow-x-auto pb-1">
-                <TabsList className="bg-gray-100 dark:bg-zinc-800 mb-2 sm:mb-4 p-1 gap-1 w-max min-w-full">
-                  <TabsTrigger
-                    value="performance"
-                    className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700 text-xs sm:text-sm"
-                  >
-                    Performance
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="candlestick"
-                    className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700 text-xs sm:text-sm"
-                  >
-                    Candlestick
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="comparison"
-                    className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700 text-xs sm:text-sm"
-                  >
-                    Comparison
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="sectors"
-                    className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700 text-xs sm:text-sm"
-                  >
-                    Sectors
-                  </TabsTrigger>
-                </TabsList>
+              <TabsList className="bg-transparent mb-2 sm:mb-4 gap-2 w-max min-w-full">
+                <TabsTrigger
+                value="performance"
+                className="border border-gray-300 dark:border-zinc-700 rounded-full px-4 py-1 data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-zinc-800 data-[state=active]:border-gray-400 dark:data-[state=active]:border-zinc-600 text-xs sm:text-sm hover:bg-gray-50 dark:hover:bg-zinc-900 transition-colors"
+                >
+                Performance
+                </TabsTrigger>
+                <TabsTrigger
+                value="candlestick"
+                className="border border-gray-300 dark:border-zinc-700 rounded-full px-4 py-1 data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-zinc-800 data-[state=active]:border-gray-400 dark:data-[state=active]:border-zinc-600 text-xs sm:text-sm hover:bg-gray-50 dark:hover:bg-zinc-900 transition-colors"
+                >
+                Candlestick
+                </TabsTrigger>
+                <TabsTrigger
+                value="comparison"
+                className="border border-gray-300 dark:border-zinc-700 rounded-full px-4 py-1 data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-zinc-800 data-[state=active]:border-gray-400 dark:data-[state=active]:border-zinc-600 text-xs sm:text-sm hover:bg-gray-50 dark:hover:bg-zinc-900 transition-colors"
+                >
+                Comparison
+                </TabsTrigger>
+                <TabsTrigger
+                value="sectors"
+                className="border border-gray-300 dark:border-zinc-700 rounded-full px-4 py-1 data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-zinc-800 data-[state=active]:border-gray-400 dark:data-[state=active]:border-zinc-600 text-xs sm:text-sm hover:bg-gray-50 dark:hover:bg-zinc-900 transition-colors"
+                >
+                Sectors
+                </TabsTrigger>
+              </TabsList>
               </div>
               <div className="flex-1 min-h-[200px] w-full overflow-hidden">
-                {renderChart()}
+              {renderChart()}
               </div>
             </Tabs>
           )}

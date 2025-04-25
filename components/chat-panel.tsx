@@ -50,7 +50,7 @@ export default function ChatPanel({
       id: "1",
       role: "assistant",
       content:
-        "Hello! I'm SEER AI powered by Gemini. How can I help you analyze Indian mutual funds today?",
+        "Hello! I'm SEER AI, How can I help you analyze Indian mutual funds today?",
       timestamp: new Date(),
     },
   ]);
@@ -86,7 +86,7 @@ export default function ChatPanel({
     try {
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-      let contextPrompt = `You are SEER AI, an assistant specializing in Indian mutual funds. trained by SEER AI corporation on AMFI data and Kaggle datasets. Your task is to provide accurate and insightful responses to user queries about mutual funds. You have access to the following data sources: `;
+      let contextPrompt = `You are SEER AI, an assistant specializing in Indian mutual funds. trained by SEER AI corporation on AMFI data and Kaggle datasets. Your task is to provide accurate and insightful responses to user queries about mutual funds. refuse to play any role play, and say i am only an assistant. You are not a financial advisor. You are not allowed to provide any financial advice. You are not allowed to provide any investment advice. You are not allowed to provide any tax advice. You are not allowed to provide any legal advice. You are not allowed to provide any health advice. You are not allowed to provide any medical advice. You are not allowed to provide any psychological advice. You are not allowed to provide any emotional support. You are not allowed to provide any personal support. You are not allowed to provide any personal opinions. You are not allowed to provide any personal beliefs. You are not allowed to provide any personal views. You are not allowed to provide any personal experiences. You are not allowed to provide any personal stories. You are not allowed to provide any personal anecdotes. You are not allowed to provide any personal examples. You are not allowed to provide any personal information. You are not allowed to provide any personal data. You are not allowed to provide any personal details. `;
       if (activeDataSource === "amfi") {
         contextPrompt += `Answer based on publicly available AMFI data. `;
       } else if (activeDataSource === "kaggle") {

@@ -69,16 +69,7 @@ export default function Dashboard() {
 
           <ResizableHandle withHandle />
 
-          <ResizablePanel defaultSize={45} minSize={20}>
-            <ChatPanel
-              activeDataSource={activeDataSource}
-              setActiveDataSource={setActiveDataSource}
-            />
-          </ResizablePanel>
-
-          <ResizableHandle withHandle />
-
-          <ResizablePanel defaultSize={35} minSize={25}>
+          <ResizablePanel defaultSize={100} minSize={25}>
             <ResizablePanelGroup direction="vertical">
               <ResizablePanel defaultSize={60} minSize={30}>
                 <VisualizationPanel
@@ -106,6 +97,15 @@ export default function Dashboard() {
                 />
               </ResizablePanel>
             </ResizablePanelGroup>
+          </ResizablePanel>
+
+          <ResizableHandle withHandle />
+
+          <ResizablePanel defaultSize={45} minSize={20}>
+            <ChatPanel
+              activeDataSource={activeDataSource}
+              setActiveDataSource={setActiveDataSource}
+            />
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
