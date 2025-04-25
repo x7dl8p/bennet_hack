@@ -131,9 +131,9 @@ export default function ChatPanel({
   ];
 
   return (
-    <Card className="h-full flex flex-col bg-white dark:bg-[#0f0f0f] border-gray-200 dark:border-zinc-800 overflow-hidden">
+    <Card className="h-full flex flex-col m-4 bg-white dark:bg-[#0f0f0f] border-gray-200 dark:border-zinc-800 overflow-hidden">
       {/* Simple header with AI name and settings */}
-      <div className="flex items-center justify-between border-b border-gray-200 dark:border-zinc-800 p-3 h-12">
+      <div className="flex items-center justify-between border-b border-gray-200 dark:border-zinc-800 p-3 h-10">
         <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-zinc-300 backdrop-blur-sm bg-gray-100/50 dark:bg-black/10 px-2 py-1 rounded-md">
           <Bot className="h-4 w-4" />
           <span>SEER AI</span>
