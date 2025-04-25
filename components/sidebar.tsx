@@ -21,7 +21,7 @@ export default function Sidebar({ activeView, onViewChange, collapsed = false }:
   return (
     <div className="h-full border-r border-zinc-800 flex flex-col">
       <div className="flex-1 py-6 flex flex-col gap-2">
-        {menuItems.map((item) => (
+        {menuItems.map((item) => ( 
           <Button
             key={item.id}
             variant="ghost"
