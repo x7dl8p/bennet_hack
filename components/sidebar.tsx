@@ -2,6 +2,12 @@
 import { BarChart3, TrendingUp, AlertTriangle, Lightbulb, Upload, User, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "@/components/ui/tooltip"
 
 interface SidebarProps {
   activeView: string
@@ -22,28 +28,68 @@ export default function Sidebar({ activeView, onViewChange, collapsed = false }:
     // test tag
     <div className="h-full border-r border-zinc-800 flex flex-col">
       <div className="flex-1 py-6 flex flex-col gap-2">
-        {menuItems.map((item) => ( 
-          <Button
-            key={item.id}
-            variant="ghost"
-            className={cn(
-              "justify-start px-4 py-2 w-full text-left rounded-none",
-              activeView === item.id ? "bg-zinc-800 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900",
-              collapsed && "px-2 justify-center",
-            )}
-            onClick={() => onViewChange(item.id)}
-            title={collapsed ? item.label : undefined}
-          >
-            <item.icon className={cn("h-5 w-5", !collapsed && "mr-2")} />
-            {!collapsed && <span>{item.label}</span>}
-          </Button>
-        ))}
+        <TooltipProvider delayDuration={100}>
+          {menuItems.map((item) => (
+            collapsed ? (
+              <Tooltip key={item.id}>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className={cn(
+                      "justify-start px-4 py-2 w-full text-left rounded-none",
+                      activeView === item.id ? "bg-zinc-800 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900",
+                      collapsed && "px-2 justify-center",
+                    )}
+                    onClick={() => onViewChange(item.id)}
+                  >
+                    <item.icon className={cn("h-5 w-5", !collapsed && "mr-2")} />
+                    {!collapsed && <span>{item.label}</span>}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right" className="bg-zinc-800 border-zinc-700 text-white text-xs">
+                  {item.label}
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <Button
+                key={item.id}
+                variant="ghost"
+                className={cn(
+                  "justify-start px-4 py-2 w-full text-left rounded-none",
+                  activeView === item.id ? "bg-zinc-800 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900",
+                  collapsed && "px-2 justify-center",
+                )}
+                onClick={() => onViewChange(item.id)}
+                title={collapsed ? item.label : undefined}
+              >
+                <item.icon className={cn("h-5 w-5", !collapsed && "mr-2")} />
+                {!collapsed && <span>{item.label}</span>}
+              </Button>
+            )
+          ))}
+        </TooltipProvider>
       </div>
       <div className={cn("p-4 border-t border-zinc-800", collapsed && "p-2")}>
         <div className={cn("flex items-center", collapsed ? "justify-center" : "space-x-3")}>
-          <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
-            <User className="h-5 w-5" />
-          </div>
+          {collapsed ? (
+            <TooltipProvider delayDuration={100}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
+                    <User className="h-5 w-5" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="right" className="bg-zinc-800 border-zinc-700 text-white text-xs">
+                  Guest User (Free Plan)
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
+              <User className="h-5 w-5" />
+            </div>
+          )}
+          
           {!collapsed && (
             <>
               <div>
