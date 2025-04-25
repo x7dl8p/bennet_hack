@@ -25,6 +25,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 
 interface Message {
   id: string;
@@ -38,6 +39,8 @@ interface ChatPanelProps {
   setActiveDataSource: (source: string) => void;
 }
 
+const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+
 export default function ChatPanel({
   activeDataSource,
   setActiveDataSource,
@@ -47,7 +50,7 @@ export default function ChatPanel({
       id: "1",
       role: "assistant",
       content:
-        "Hello! I'm SEER AI powered by Gemini. How can I help you analyze Indian mutual funds today?",
+        "Hello! I'm SEER AI powered by Gemini. How can I help you analyze Indian mutual funds today?, i am trained by SEER AI corporation on AMFI data and Kaggle datasets.",
       timestamp: new Date(),
     },
   ]);
@@ -55,6 +58,8 @@ export default function ChatPanel({
   const [isLoading, setIsLoading] = useState(false);
   const [activeModel, setActiveModel] = useState("gemini-pro");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -65,7 +70,7 @@ export default function ChatPanel({
   }, [messages]);
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || !genAI || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -74,47 +79,46 @@ export default function ChatPanel({
       timestamp: new Date(),
     };
     setMessages((prev) => [...prev, userMessage]);
+    const currentInput = input;
     setInput("");
     setIsLoading(true);
 
-    setTimeout(() => {
-      let response = "";
+    try {
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
+      let contextPrompt = `You are SEER AI, an assistant specializing in Indian mutual funds. trained by SEER AI corporation on AMFI data and Kaggle datasets. Your task is to provide accurate and insightful responses to user queries about mutual funds. You have access to the following data sources: `;
       if (activeDataSource === "amfi") {
-        const amfiResponses = [
-          "Based on AMFI data, large-cap mutual funds like HDFC Top 100 Fund have shown consistent performance over the past 5 years with lower volatility compared to mid and small caps.",
-          "The latest AMFI data shows that SBI Small Cap Fund has outperformed its benchmark by 4.2% over the last year, making it one of the top performers in its category.",
-          "According to AMFI's latest report, equity funds saw an inflow of ₹18,500 crores last month, indicating strong investor confidence despite market volatility.",
-        ];
-        response =
-          amfiResponses[Math.floor(Math.random() * amfiResponses.length)];
+        contextPrompt += `Answer based on publicly available AMFI data. `;
       } else if (activeDataSource === "kaggle") {
-        const kaggleResponses = [
-          "Based on the Kaggle dataset analysis, funds with lower expense ratios tend to outperform their high-expense counterparts by an average of 1.2% annually over a 10-year period.",
-          "The Kaggle historical data shows a strong correlation (0.78) between fund manager tenure and consistent alpha generation in Indian equity funds.",
-          "According to the Kaggle dataset, sectoral funds in technology and healthcare have shown the highest risk-adjusted returns (Sharpe ratio > 1.2) over the past 3 years.",
-        ];
-        response =
-          kaggleResponses[Math.floor(Math.random() * kaggleResponses.length)];
+        contextPrompt += `Answer based on insights derived from typical Kaggle datasets on mutual funds. `;
       } else if (activeDataSource === "custom") {
-        const customResponses = [
-          "Based on your uploaded data, your portfolio has a weighted average expense ratio of 1.35%, which is slightly higher than the category average of 1.2%.",
-          "Your custom dataset indicates that your investments are heavily skewed towards large-cap funds (68%), which may limit your growth potential in the current market conditions.",
-          "Analysis of your uploaded data shows that adding a mid-cap fund could potentially improve your portfolio's risk-adjusted returns by 0.8% based on historical performance.",
-        ];
-        response =
-          customResponses[Math.floor(Math.random() * customResponses.length)];
+        contextPrompt += `Answer based on user-provided data (assume relevant context is given in the prompt). `;
       }
+      contextPrompt += `User's question: ${currentInput}`;
+
+      const result = await model.generateContent(contextPrompt);
+      const response = await result.response;
+      const text = response.text();
 
       const aiMessage: Message = {
-        id: Date.now().toString(),
+        id: Date.now().toString() + "-ai",
         role: "assistant",
-        content: response,
+        content: text || "Sorry, I couldn't generate a response.",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, aiMessage]);
+    } catch (error) {
+      console.error("Error calling Gemini API:", error);
+      const errorMessage: Message = {
+        id: Date.now().toString() + "-err",
+        role: "assistant",
+        content: "Sorry, I encountered an error. Please try again.",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -130,9 +134,18 @@ export default function ChatPanel({
     { id: "custom", label: "Custom Upload" },
   ];
 
+  if (!API_KEY) {
+    return (
+      <Card className="h-[90%] flex flex-col m-4 items-center justify-center bg-white dark:bg-[#0f0f0f] border-gray-200 dark:border-zinc-800">
+        <p className="text-red-500 p-4 text-center">
+          Gemini API Key is missing. Please set NEXT_PUBLIC_GEMINI_API_KEY in your environment variables.
+        </p>
+      </Card>
+    );
+  }
+
   return (
-    <Card className="h-full flex flex-col m-4 bg-white dark:bg-[#0f0f0f] border-gray-200 dark:border-zinc-800 overflow-hidden">
-      {/* Simple header with AI name and settings */}
+    <Card className="h-[90%] flex flex-col m-4 bg-white dark:bg-[#0f0f0f] border-gray-200 dark:border-zinc-800 overflow-hidden">
       <div className="flex items-center justify-between border-b border-gray-200 dark:border-zinc-800 p-3 h-10">
         <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-zinc-300 backdrop-blur-sm bg-gray-100/50 dark:bg-black/10 px-2 py-1 rounded-md">
           <Bot className="h-4 w-4" />
@@ -164,8 +177,6 @@ export default function ChatPanel({
                   </SelectTrigger>
                   <SelectContent className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
                     <SelectItem value="gemini-pro">Gemini Pro</SelectItem>
-                    <SelectItem value="gemini-flash">Gemini Flash</SelectItem>
-                    <SelectItem value="claude-3">Claude 3</SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -193,7 +204,6 @@ export default function ChatPanel({
         </div>
       </div>
 
-      {/* Message area */}
       <ScrollArea className="flex-1">
         <div className="flex flex-col">
           {messages.map((message) => (
@@ -208,7 +218,7 @@ export default function ChatPanel({
               <div className="max-w-3xl mx-auto flex items-start gap-4">
                 <div
                   className={`min-w-6 flex ${
-                    message.role === "user" ? "self-end" : ""
+                    message.role === "user" ? "self-start" : ""
                   }`}
                 >
                   {message.role === "assistant" ? (
@@ -249,7 +259,6 @@ export default function ChatPanel({
         </div>
       </ScrollArea>
 
-      {/* Input area */}
       <div className="p-3 border-t border-gray-200 dark:border-zinc-800">
         <div className="max-w-3xl mx-auto relative">
           <Input
@@ -257,6 +266,7 @@ export default function ChatPanel({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
+            disabled={isLoading}
             className="pr-20 py-3 bg-gray-50 dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 rounded-xl focus-visible:ring-gray-400 dark:focus-visible:ring-zinc-600"
           />
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
@@ -267,6 +277,7 @@ export default function ChatPanel({
                     variant="ghost"
                     size="icon"
                     className="h-7 w-7 rounded-md"
+                    disabled
                   >
                     <Paperclip className="h-4 w-4" />
                   </Button>
@@ -275,7 +286,7 @@ export default function ChatPanel({
                   side="top"
                   className="bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700"
                 >
-                  <p className="text-xs">Attach files</p>
+                  <p className="text-xs">Attach files (coming soon)</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

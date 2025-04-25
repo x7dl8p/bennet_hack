@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Menu, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
@@ -9,10 +10,26 @@ interface HeaderProps {
 }
 
 export default function Header({ toggleSidebar }: HeaderProps) {
+  const [isMounted, setIsMounted] = useState(false);
   const { theme, setTheme } = useTheme();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
+  };
+
+  const renderThemeIcon = () => {
+    if (!isMounted) {
+      return <div className="h-4 w-4" />;
+    }
+    return theme === "dark" ? (
+      <Sun className="h-4 w-4" />
+    ) : (
+      <Moon className="h-4 w-4" />
+    );
   };
 
   return (
@@ -35,12 +52,9 @@ export default function Header({ toggleSidebar }: HeaderProps) {
           size="icon"
           className="h-8 w-8"
           onClick={toggleTheme}
+          disabled={!isMounted}
         >
-          {theme === "dark" ? (
-            <Sun className="h-4 w-4" />
-          ) : (
-            <Moon className="h-4 w-4" />
-          )}
+          {renderThemeIcon()}
           <span className="sr-only">Toggle theme</span>
         </Button>
         {/* <Button variant="outline" size="sm" className="h-8 hidden md:flex">
