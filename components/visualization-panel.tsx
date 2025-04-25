@@ -1,7 +1,8 @@
 "use client";
+import { useState, useRef } from "react";
+import type { ImperativePanelHandle } from "react-resizable-panels"; // Import the correct type
 import type { MutualFundData } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -11,6 +12,8 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import html2canvas from "html2canvas";
 import {
   Bar,
   BarChart,
@@ -28,24 +31,28 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import CustomCandlestickChart from "@/components/custom-candlestick-chart";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 
 interface VisualizationPanelProps {
-  activeView: string;
+  activeTimeframe: string; // Add back activeTimeframe
+  setActiveTimeframe: (timeframe: string) => void;
   mutualFundData: MutualFundData[];
   selectedFund: string | null;
-  activeTimeframe: string;
-  activeChartType: string;
-  setActiveChartType: (chartType: string) => void;
 }
 
 export default function VisualizationPanel({
-  activeView,
   mutualFundData,
   selectedFund,
   activeTimeframe,
-  activeChartType,
-  setActiveChartType,
+  setActiveTimeframe,
 }: VisualizationPanelProps) {
+  const [leftChartType, setLeftChartType] = useState("candlestick");
+  const [rightChartType, setRightChartType] = useState("sectors");
+  const leftPanelRef = useRef<ImperativePanelHandle>(null);
+  const rightPanelRef = useRef<ImperativePanelHandle>(null);
+  const leftChartContainerRef = useRef<HTMLDivElement>(null); // Ref for the chart container div
+  const rightChartContainerRef = useRef<HTMLDivElement>(null); // Ref for the chart container div
+
   const selectedFundData = selectedFund
     ? mutualFundData.find((fund) => fund.id === selectedFund)
     : null;
@@ -83,20 +90,19 @@ export default function VisualizationPanel({
     { name: "Others", allocation: 5 },
   ];
 
-  const renderChart = () => {
+  const renderChart = (chartType: string) => {
     const isDarkTheme = document.documentElement.classList.contains("dark");
     const gridColor = isDarkTheme ? "#333" : "#e5e7eb";
     const axisColor = isDarkTheme ? "#666" : "#9ca3af";
-    const tooltipBg = isDarkTheme ? "#222" : "#fff";
-    const tooltipBorder = isDarkTheme ? "#444" : "#e5e7eb";
-    const tooltipTextColor = isDarkTheme ? "#fff" : "#111";
 
-    switch (activeChartType) {
-      case "performance":
+    switch (chartType) {
+      case "candlestick":
+        return <CustomCandlestickChart />;
+      case "performance": // Add performance chart case
         return (
-          <ResponsiveContainer width="100%" height="100%" minHeight={200}>
+          <ResponsiveContainer width="100%" height="100%">
             <LineChart
-              data={performanceData}
+              data={performanceData} // Use appropriate data
               margin={{ top: 20, right: 10, left: 0, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
@@ -108,10 +114,10 @@ export default function VisualizationPanel({
               <YAxis stroke={axisColor} tick={{ fontSize: "0.75rem" }} />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: tooltipBg,
-                  borderColor: tooltipBorder,
+                  backgroundColor: isDarkTheme ? "#222" : "#fff",
+                  borderColor: isDarkTheme ? "#444" : "#e5e7eb",
                 }}
-                labelStyle={{ color: tooltipTextColor }}
+                labelStyle={{ color: isDarkTheme ? "#fff" : "#111" }}
               />
               <Line
                 type="monotone"
@@ -123,25 +129,17 @@ export default function VisualizationPanel({
             </LineChart>
           </ResponsiveContainer>
         );
-      case "candlestick":
-        return <CustomCandlestickChart />;
-      case "comparison":
+      case "comparison": // Add comparison chart case
         return (
           <ChartContainer
             config={{
-              returns: {
-                label: "Returns (%)",
-                color: "hsl(142, 76%, 36%)",
-              },
-              risk: {
-                label: "Risk",
-                color: "hsl(0, 84%, 60%)",
-              },
+              returns: { label: "Returns (%)", color: "hsl(142, 76%, 36%)" },
+              risk: { label: "Risk", color: "hsl(0, 84%, 60%)" },
             }}
-            className="min-h-[300px]"
+            className="h-full w-full"
           >
             <BarChart
-              data={comparisonData}
+              data={comparisonData} // Use appropriate data
               margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
@@ -162,7 +160,7 @@ export default function VisualizationPanel({
                 color: "hsl(47, 96%, 53%)",
               },
             }}
-            className="min-h-[300px]"
+            className="h-full w-full"
           >
             <BarChart
               data={sectorData}
@@ -178,11 +176,24 @@ export default function VisualizationPanel({
           </ChartContainer>
         );
       default:
-        return (
-          <div className="flex items-center justify-center h-full">
-            Select a chart type
-          </div>
-        );
+        return null;
+    }
+  };
+
+  const handleDownload = async () => {
+    if (leftPanelRef.current && rightPanelRef.current) {
+      const leftCanvas = await html2canvas(leftChartContainerRef.current!); // Use container ref
+      const rightCanvas = await html2canvas(rightChartContainerRef.current!); // Use container ref
+
+      const leftLink = document.createElement("a");
+      leftLink.href = leftCanvas.toDataURL("image/png");
+      leftLink.download = "left-chart.png";
+      leftLink.click();
+
+      const rightLink = document.createElement("a");
+      rightLink.href = rightCanvas.toDataURL("image/png");
+      rightLink.download = "right-chart.png";
+      rightLink.click();
     }
   };
 
@@ -203,7 +214,7 @@ export default function VisualizationPanel({
                 </span>
               )}
             </CardTitle>
-            <Button
+            <Button onClick={handleDownload}
               variant="outline"
               size="icon"
               className="hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors flex-shrink-0"
@@ -235,49 +246,47 @@ export default function VisualizationPanel({
             </div>
           )}
           {selectedFundData && (
-            <Tabs
-              defaultValue="performance"
-              value={activeChartType}
-              onValueChange={setActiveChartType}
-              className="flex flex-col flex-1 overflow-hidden"
+            <div className="flex flex-col flex-1 overflow-hidden"> {/* Wrap conditional content */}
+              <div className="flex justify-between mb-4">
+              <ToggleGroup
+                type="single"
+                value={leftChartType}
+                onValueChange={(value) => value && setLeftChartType(value)}
+              >
+                <ToggleGroupItem value="candlestick">Candlestick</ToggleGroupItem>
+                <ToggleGroupItem value="performance">Performance</ToggleGroupItem>
+              </ToggleGroup>
+              <ToggleGroup
+                type="single"
+                value={rightChartType}
+                onValueChange={(value) => value && setRightChartType(value)}
+              >
+                <ToggleGroupItem value="sectors">Sectors</ToggleGroupItem>
+                <ToggleGroupItem value="comparison">Comparison</ToggleGroupItem>
+              </ToggleGroup>
+            </div>
+            <ResizablePanelGroup
+              direction="horizontal" // Or "vertical" if preferred
+              className="flex-1 rounded-lg border dark:border-zinc-700" // Added border for visibility
             >
-              <div className="overflow-x-auto pb-1">
-              <TabsList className="bg-transparent mb-2 sm:mb-4 gap-2 w-max min-w-full">
-                <TabsTrigger
-                value="performance"
-                className="border border-gray-300 dark:border-zinc-700 rounded-full px-4 py-1 data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-zinc-800 data-[state=active]:border-gray-400 dark:data-[state=active]:border-zinc-600 text-xs sm:text-sm hover:bg-gray-50 dark:hover:bg-zinc-900 transition-colors"
-                >
-                Performance
-                </TabsTrigger>
-                <TabsTrigger
-                value="candlestick"
-                className="border border-gray-300 dark:border-zinc-700 rounded-full px-4 py-1 data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-zinc-800 data-[state=active]:border-gray-400 dark:data-[state=active]:border-zinc-600 text-xs sm:text-sm hover:bg-gray-50 dark:hover:bg-zinc-900 transition-colors"
-                >
-                Candlestick
-                </TabsTrigger>
-                <TabsTrigger
-                value="comparison"
-                className="border border-gray-300 dark:border-zinc-700 rounded-full px-4 py-1 data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-zinc-800 data-[state=active]:border-gray-400 dark:data-[state=active]:border-zinc-600 text-xs sm:text-sm hover:bg-gray-50 dark:hover:bg-zinc-900 transition-colors"
-                >
-                Comparison
-                </TabsTrigger>
-                <TabsTrigger
-                value="sectors"
-                className="border border-gray-300 dark:border-zinc-700 rounded-full px-4 py-1 data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-zinc-800 data-[state=active]:border-gray-400 dark:data-[state=active]:border-zinc-600 text-xs sm:text-sm hover:bg-gray-50 dark:hover:bg-zinc-900 transition-colors"
-                >
-                Sectors
-                </TabsTrigger>
-              </TabsList>
-              </div>
-              <div className="flex-1 min-h-[200px] w-full overflow-hidden">
-              {renderChart()}
-              </div>
-            </Tabs>
-          )}
+              <ResizablePanel defaultSize={50} ref={leftPanelRef}>
+                <div className="flex h-full items-center justify-center p-2" ref={leftChartContainerRef}>
+                  {renderChart(leftChartType)}
+                </div>
+              </ResizablePanel>
+              <ResizableHandle withHandle />
+              <ResizablePanel defaultSize={50} ref={rightPanelRef}>
+                <div className="flex h-full items-center justify-center p-2" ref={rightChartContainerRef}>
+                  {renderChart(rightChartType)}
+                </div>
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </div> // Close the wrapper div for conditional content
+        )}
 
           {selectedFundData && (
             <div className="flex flex-wrap justify-between mt-4 gap-2">
-              <Select defaultValue={activeTimeframe}>
+              <Select value={activeTimeframe} onValueChange={setActiveTimeframe}>
                 <SelectTrigger className="w-full sm:w-auto min-w-[120px] bg-white dark:bg-zinc-900 border-gray-300 dark:border-zinc-700 hover:border-gray-400 dark:hover:border-zinc-600 transition-colors text-sm">
                   <SelectValue placeholder="Time Period" />
                 </SelectTrigger>
@@ -288,16 +297,6 @@ export default function VisualizationPanel({
                   <SelectItem value="1y">1 Year</SelectItem>
                   <SelectItem value="3y">3 Years</SelectItem>
                   <SelectItem value="5y">5 Years</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select defaultValue="agent1">
-                <SelectTrigger className="w-full sm:w-auto min-w-[120px] bg-white dark:bg-zinc-900 border-gray-300 dark:border-zinc-700 hover:border-gray-400 dark:hover:border-zinc-600 transition-colors text-sm">
-                  <SelectValue placeholder="Agent" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="agent1">Agent 1</SelectItem>
-                  <SelectItem value="agent2">Agent 2</SelectItem>
-                  <SelectItem value="agent3">Agent 3</SelectItem>
                 </SelectContent>
               </Select>
             </div>
