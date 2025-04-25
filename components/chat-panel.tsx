@@ -3,13 +3,13 @@
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar } from "@/components/ui/avatar"
+import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Bot, Send, User, Paperclip, Sparkles } from "lucide-react"
+import { Bot, Send, User, Paperclip, Settings, Sparkles } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 interface Message {
   id: string
@@ -105,118 +105,155 @@ export default function ChatPanel({ activeDataSource, setActiveDataSource }: Cha
     }
   }
 
+  const dataSources = [
+    { id: "amfi", label: "AMFI Data" },
+    { id: "kaggle", label: "Kaggle Dataset" },
+    { id: "custom", label: "Custom Upload" },
+  ]
+
   return (
-    <Card className="h-full flex flex-col bg-zinc-900 border-zinc-800">
-      <CardHeader className="pb-2 border-b border-zinc-800">
-        <div className="flex justify-between items-center">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Bot className="h-5 w-5" />
-            AI Assistant
-          </CardTitle>
-          <Tabs defaultValue={activeDataSource} onValueChange={setActiveDataSource} className="w-auto">
-            <TabsList className="bg-zinc-800">
-              <TabsTrigger value="amfi" className="text-xs">
-                AMFI
-              </TabsTrigger>
-              <TabsTrigger value="kaggle" className="text-xs">
-                Kaggle
-              </TabsTrigger>
-              <TabsTrigger value="custom" className="text-xs">
-                Custom
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+    <Card className="h-full flex flex-col bg-[#0f0f0f] border-zinc-800 overflow-hidden">
+      {/* Simple header with AI name and settings */}
+      <div className="flex items-center justify-between border-b border-zinc-800 p-3 h-12">
+        <div className="flex items-center gap-2 text-sm text-zinc-300">
+          <Bot className="h-4 w-4" />
+          <span>SEER AI</span>
         </div>
-      </CardHeader>
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4">
+        
+        <div className="flex items-center gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                <Settings className="h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-56 bg-zinc-900 border-zinc-800 p-2" align="end">
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-zinc-400 mb-1">Model</p>
+                <Select value={activeModel} onValueChange={setActiveModel}>
+                  <SelectTrigger className="w-full bg-zinc-800 border-zinc-700 h-8 text-xs">
+                    <SelectValue placeholder="Select model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="gemini-pro">Gemini Pro</SelectItem>
+                    <SelectItem value="gemini-flash">Gemini Flash</SelectItem>
+                    <SelectItem value="claude-3">Claude 3</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                <p className="text-xs font-medium text-zinc-400 mt-2 mb-1">Data Source</p>
+                <Select value={activeDataSource} onValueChange={setActiveDataSource}>
+                  <SelectTrigger className="w-full bg-zinc-800 border-zinc-700 h-8 text-xs">
+                    <SelectValue placeholder="Select data source" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {dataSources.map(source => (
+                      <SelectItem key={source.id} value={source.id}>{source.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
+
+      {/* Message area */}
+      <ScrollArea className="flex-1">
+        <div className="flex flex-col">
           {messages.map((message) => (
-            <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`flex gap-3 max-w-[80%] ${message.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
-                <Avatar className="h-8 w-8 bg-zinc-800">
-                  {message.role === "user" ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
-                </Avatar>
-                <div
-                  className={`rounded-lg p-3 ${
-                    message.role === "user" ? "bg-zinc-800 text-white" : "bg-zinc-700 text-white"
-                  }`}
-                >
-                  <p className="text-sm">{message.content}</p>
-                  <p className="text-xs text-zinc-400 mt-1">
-                    {message.timestamp.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
+            <div 
+              key={message.id} 
+              className={`py-5 px-4 ${
+                message.role === "user" 
+                  ? "bg-[#0f0f0f]" 
+                  : "bg-[#121212] border-y border-zinc-800"
+              }`}
+            >
+              <div className="max-w-3xl mx-auto flex items-start gap-4">
+                <div className={`min-w-6 flex ${message.role === "user" ? "self-end" : ""}`}>
+                  {message.role === "assistant" ? (
+                    <div className="bg-gradient-to-br from-green-500 to-blue-500 rounded-sm p-1 h-6 w-6 flex items-center justify-center">
+                      <Bot className="h-4 w-4 text-black" />
+                    </div>
+                  ) : (
+                    <div className="bg-zinc-700 rounded-sm p-1 h-6 w-6 flex items-center justify-center">
+                      <User className="h-4 w-4" />
+                    </div>
+                  )}
+                </div>
+                <div className="text-sm text-zinc-300 leading-relaxed whitespace-pre-wrap">
+                  {message.content}
                 </div>
               </div>
             </div>
           ))}
+          
           {isLoading && (
-            <div className="flex justify-start">
-              <div className="flex gap-3 max-w-[80%]">
-                <Avatar className="h-8 w-8 bg-zinc-800">
-                  <Bot className="h-4 w-4" />
-                </Avatar>
-                <div className="rounded-lg p-3 bg-zinc-700 text-white">
-                  <div className="flex space-x-2">
-                    <div className="h-2 w-2 rounded-full bg-zinc-400 animate-bounce" />
-                    <div className="h-2 w-2 rounded-full bg-zinc-400 animate-bounce [animation-delay:0.2s]" />
-                    <div className="h-2 w-2 rounded-full bg-zinc-400 animate-bounce [animation-delay:0.4s]" />
+            <div className="py-5 px-4 bg-[#121212] border-y border-zinc-800">
+              <div className="max-w-3xl mx-auto flex items-start gap-4">
+                <div className="min-w-6">
+                  <div className="bg-gradient-to-br from-green-500 to-blue-500 rounded-sm p-1 h-6 w-6 flex items-center justify-center">
+                    <Bot className="h-4 w-4 text-black" />
                   </div>
+                </div>
+                <div className="flex space-x-2 items-center">
+                  <div className="h-2 w-2 rounded-full bg-zinc-400 animate-bounce" />
+                  <div className="h-2 w-2 rounded-full bg-zinc-400 animate-bounce [animation-delay:0.2s]" />
+                  <div className="h-2 w-2 rounded-full bg-zinc-400 animate-bounce [animation-delay:0.4s]" />
                 </div>
               </div>
             </div>
           )}
+          
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
-      <CardFooter className="border-t border-zinc-800 p-4">
-        <div className="flex w-full items-center space-x-2">
-          <Button variant="outline" size="icon" className="shrink-0">
-            <Paperclip className="h-4 w-4" />
-          </Button>
+
+      {/* Input area */}
+      <div className="p-3 border-t border-zinc-800">
+        <div className="max-w-3xl mx-auto relative">
           <Input
-            placeholder="Ask about mutual funds, market trends, or investment strategies..."
+            placeholder="Message SEER AI..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="flex-1 bg-zinc-800 border-zinc-700"
+            className="pr-20 py-3 bg-zinc-800 border-zinc-700 rounded-xl focus-visible:ring-zinc-600"
           />
-          <Button
-            type="submit"
-            size="icon"
-            disabled={isLoading || !input.trim()}
-            onClick={handleSend}
-            className="shrink-0"
-          >
-            {isLoading ? <Sparkles className="h-4 w-4 animate-pulse" /> : <Send className="h-4 w-4" />}
-          </Button>
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md">
+                    <Paperclip className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p className="text-xs">Attach files</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
+            <Button 
+              onClick={handleSend}
+              disabled={isLoading || !input.trim()} 
+              size="icon"
+              className="h-7 w-7 rounded-md"
+            >
+              {isLoading ? (
+                <Sparkles className="h-3 w-3 animate-pulse" />
+              ) : (
+                <Send className="h-3 w-3" />
+              )}
+            </Button>
+          </div>
         </div>
-        <div className="flex justify-between w-full mt-3">
-          <Select value={activeModel} onValueChange={setActiveModel}>
-            <SelectTrigger className="w-[180px] bg-zinc-800 border-zinc-700 h-8 text-xs">
-              <SelectValue placeholder="Select model" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="gemini-pro">Gemini Pro</SelectItem>
-              <SelectItem value="gemini-flash">Gemini Flash</SelectItem>
-              <SelectItem value="claude-3">Claude 3</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select defaultValue="agent1">
-            <SelectTrigger className="w-[120px] bg-zinc-800 border-zinc-700 h-8 text-xs">
-              <SelectValue placeholder="Agent" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="agent1">Analyst</SelectItem>
-              <SelectItem value="agent2">Advisor</SelectItem>
-              <SelectItem value="agent3">Researcher</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="max-w-3xl mx-auto mt-2">
+          <p className="text-[10px] text-zinc-500 text-center">
+            SEER AI may produce inaccurate information about funds or market data.
+          </p>
         </div>
-      </CardFooter>
+      </div>
     </Card>
   )
 }
