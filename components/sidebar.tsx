@@ -1,35 +1,46 @@
-"use client"
-import { BarChart3, TrendingUp, AlertTriangle, Lightbulb, Upload, User, Settings } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
-import { 
+"use client";
+import {
+  BarChart3,
+  TrendingUp,
+  AlertTriangle,
+  Lightbulb,
+  Upload,
+  User,
+  Settings,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger
-} from "@/components/ui/tooltip"
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface SidebarProps {
-  activeView: string
-  onViewChange: (view: string) => void
-  collapsed?: boolean
+  activeView: string;
+  onViewChange: (view: string) => void;
+  collapsed?: boolean;
 }
 
-export default function Sidebar({ activeView, onViewChange, collapsed = false }: SidebarProps) {
+export default function Sidebar({
+  activeView,
+  onViewChange,
+  collapsed = false,
+}: SidebarProps) {
   const menuItems = [
     { id: "overview", label: "Overview", icon: BarChart3 },
     { id: "returns", label: "Returns", icon: TrendingUp },
     { id: "risk", label: "Risk Analysis", icon: AlertTriangle },
     { id: "insights", label: "AI Insights", icon: Lightbulb },
     { id: "upload", label: "Upload Data", icon: Upload },
-  ]
+  ];
 
   return (
-    // test tag
-    <div className="h-full border-r border-zinc-800 flex flex-col">
+    <div className="h-full border-r border-gray-200 dark:border-zinc-800 flex flex-col bg-gray-50 dark:bg-black">
       <div className="flex-1 py-6 flex flex-col gap-2">
         <TooltipProvider delayDuration={100}>
-          {menuItems.map((item) => (
+          {menuItems.map((item) =>
             collapsed ? (
               <Tooltip key={item.id}>
                 <TooltipTrigger asChild>
@@ -37,16 +48,23 @@ export default function Sidebar({ activeView, onViewChange, collapsed = false }:
                     variant="ghost"
                     className={cn(
                       "justify-start px-4 py-2 w-full text-left rounded-none",
-                      activeView === item.id ? "bg-zinc-800 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900",
-                      collapsed && "px-2 justify-center",
+                      activeView === item.id
+                        ? "bg-gray-200 dark:bg-zinc-800 text-gray-900 dark:text-white"
+                        : "text-gray-600 dark:text-zinc-400 hover:text-gray-900 hover:bg-gray-100 dark:hover:text-white dark:hover:bg-zinc-900",
+                      collapsed && "px-2 justify-center"
                     )}
                     onClick={() => onViewChange(item.id)}
                   >
-                    <item.icon className={cn("h-5 w-5", !collapsed && "mr-2")} />
+                    <item.icon
+                      className={cn("h-5 w-5", !collapsed && "mr-2")}
+                    />
                     {!collapsed && <span>{item.label}</span>}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="right" className="bg-zinc-800 border-zinc-700 text-white text-xs">
+                <TooltipContent
+                  side="right"
+                  className="bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white text-xs"
+                >
                   {item.label}
                 </TooltipContent>
               </Tooltip>
@@ -56,8 +74,10 @@ export default function Sidebar({ activeView, onViewChange, collapsed = false }:
                 variant="ghost"
                 className={cn(
                   "justify-start px-4 py-2 w-full text-left rounded-none",
-                  activeView === item.id ? "bg-zinc-800 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900",
-                  collapsed && "px-2 justify-center",
+                  activeView === item.id
+                    ? "bg-gray-200 dark:bg-zinc-800 text-gray-900 dark:text-white"
+                    : "text-gray-600 dark:text-zinc-400 hover:text-gray-900 hover:bg-gray-100 dark:hover:text-white dark:hover:bg-zinc-900",
+                  collapsed && "px-2 justify-center"
                 )}
                 onClick={() => onViewChange(item.id)}
                 title={collapsed ? item.label : undefined}
@@ -66,35 +86,50 @@ export default function Sidebar({ activeView, onViewChange, collapsed = false }:
                 {!collapsed && <span>{item.label}</span>}
               </Button>
             )
-          ))}
+          )}
         </TooltipProvider>
       </div>
-      <div className={cn("p-4 border-t border-zinc-800", collapsed && "p-2")}>
-        <div className={cn("flex items-center", collapsed ? "justify-center" : "space-x-3")}>
+      <div
+        className={cn(
+          "p-4 border-t border-gray-200 dark:border-zinc-800",
+          collapsed && "p-2"
+        )}
+      >
+        <div
+          className={cn(
+            "flex items-center",
+            collapsed ? "justify-center" : "space-x-3"
+          )}
+        >
           {collapsed ? (
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-zinc-800 flex items-center justify-center">
                     <User className="h-5 w-5" />
                   </div>
                 </TooltipTrigger>
-                <TooltipContent side="right" className="bg-zinc-800 border-zinc-700 text-white text-xs">
+                <TooltipContent
+                  side="right"
+                  className="bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white text-xs"
+                >
                   Guest User (Free Plan)
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           ) : (
-            <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-zinc-800 flex items-center justify-center">
               <User className="h-5 w-5" />
             </div>
           )}
-          
+
           {!collapsed && (
             <>
               <div>
                 <p className="text-sm font-medium">Guest User</p>
-                <p className="text-xs text-zinc-400">Free Plan</p>
+                <p className="text-xs text-gray-500 dark:text-zinc-400">
+                  Free Plan
+                </p>
               </div>
               <Button variant="ghost" size="icon" className="ml-auto">
                 <Settings className="h-4 w-4" />
@@ -104,5 +139,5 @@ export default function Sidebar({ activeView, onViewChange, collapsed = false }:
         </div>
       </div>
     </div>
-  )
+  );
 }

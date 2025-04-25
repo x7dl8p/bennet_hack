@@ -1,44 +1,49 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
-import Sidebar from "@/components/sidebar"
-import Header from "@/components/header"
-import MainContent from "@/components/main-content"
-import VisualizationPanel from "@/components/visualization-panel"
-import ChatPanel from "@/components/chat-panel"
-import type { MutualFundData } from "@/lib/types"
-import { sampleData } from "@/lib/sample-data"
-import { cn } from "@/lib/utils"
+import { useState } from "react";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
+import Sidebar from "@/components/sidebar";
+import Header from "@/components/header";
+import MainContent from "@/components/main-content";
+import VisualizationPanel from "@/components/visualization-panel";
+import ChatPanel from "@/components/chat-panel";
+import type { MutualFundData } from "@/lib/types";
+import { sampleData } from "@/lib/sample-data";
+import { cn } from "@/lib/utils";
 
 export default function Dashboard() {
-  const [activeView, setActiveView] = useState<string>("overview")
-  const [mutualFundData, setMutualFundData] = useState<MutualFundData[]>(sampleData)
-  const [selectedFund, setSelectedFund] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false)
-  const [activeTimeframe, setActiveTimeframe] = useState<string>("1y")
-  const [activeChartType, setActiveChartType] = useState<string>("performance")
-  const [activeDataSource, setActiveDataSource] = useState<string>("amfi")
+  const [activeView, setActiveView] = useState<string>("overview");
+  const [mutualFundData, setMutualFundData] =
+    useState<MutualFundData[]>(sampleData);
+  const [selectedFund, setSelectedFund] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
+  const [activeTimeframe, setActiveTimeframe] = useState<string>("1y");
+  const [activeChartType, setActiveChartType] = useState<string>("performance");
+  const [activeDataSource, setActiveDataSource] = useState<string>("amfi");
 
   const handleViewChange = (view: string) => {
-    setActiveView(view)
-  }
+    setActiveView(view);
+  };
 
   const handleFundSelect = (fundId: string) => {
-    setSelectedFund(fundId)
-  }
+    setSelectedFund(fundId);
+  };
 
   const handleDataUpload = (data: MutualFundData[]) => {
-    setMutualFundData(data)
-  }
+    setMutualFundData(data);
+  };
 
   const toggleSidebar = () => {
-    setSidebarCollapsed(!sidebarCollapsed)
-  }
+    setSidebarCollapsed(!sidebarCollapsed);
+  };
 
   return (
-    <div className="flex flex-col h-screen bg-black text-white">
+    <div className="flex flex-col h-screen bg-white dark:bg-black text-gray-900 dark:text-white">
       <Header toggleSidebar={toggleSidebar} />
       <div className="flex flex-1 overflow-hidden">
         <ResizablePanelGroup direction="horizontal">
@@ -50,15 +55,25 @@ export default function Dashboard() {
             collapsedSize={4}
             onCollapse={() => setSidebarCollapsed(true)}
             onExpand={() => setSidebarCollapsed(false)}
-            className={cn("min-w-[50px]", sidebarCollapsed ? "max-w-[80px]" : "")}
+            className={cn(
+              "min-w-[50px]",
+              sidebarCollapsed ? "max-w-[80px]" : ""
+            )}
           >
-            <Sidebar activeView={activeView} onViewChange={handleViewChange} collapsed={sidebarCollapsed} />
+            <Sidebar
+              activeView={activeView}
+              onViewChange={handleViewChange}
+              collapsed={sidebarCollapsed}
+            />
           </ResizablePanel>
 
           <ResizableHandle withHandle />
 
           <ResizablePanel defaultSize={45} minSize={20}>
-            <ChatPanel activeDataSource={activeDataSource} setActiveDataSource={setActiveDataSource} />
+            <ChatPanel
+              activeDataSource={activeDataSource}
+              setActiveDataSource={setActiveDataSource}
+            />
           </ResizablePanel>
 
           <ResizableHandle withHandle />
@@ -95,5 +110,5 @@ export default function Dashboard() {
         </ResizablePanelGroup>
       </div>
     </div>
-  )
+  );
 }

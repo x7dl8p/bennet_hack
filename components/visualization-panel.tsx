@@ -1,21 +1,41 @@
-"use client"
-import type { MutualFundData } from "@/lib/types"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
-import { Download } from "lucide-react"
-import { Bar, BarChart, Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import CustomCandlestickChart from "@/components/custom-candlestick-chart"
+"use client";
+import type { MutualFundData } from "@/lib/types";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+import {
+  Bar,
+  BarChart,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+} from "recharts";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import CustomCandlestickChart from "@/components/custom-candlestick-chart";
 
 interface VisualizationPanelProps {
-  activeView: string
-  mutualFundData: MutualFundData[]
-  selectedFund: string | null
-  activeTimeframe: string
-  activeChartType: string
-  setActiveChartType: (chartType: string) => void
+  activeView: string;
+  mutualFundData: MutualFundData[];
+  selectedFund: string | null;
+  activeTimeframe: string;
+  activeChartType: string;
+  setActiveChartType: (chartType: string) => void;
 }
 
 export default function VisualizationPanel({
@@ -26,7 +46,9 @@ export default function VisualizationPanel({
   activeChartType,
   setActiveChartType,
 }: VisualizationPanelProps) {
-  const selectedFundData = selectedFund ? mutualFundData.find((fund) => fund.id === selectedFund) : null
+  const selectedFundData = selectedFund
+    ? mutualFundData.find((fund) => fund.id === selectedFund)
+    : null;
 
   const performanceData = [
     { month: "Jan", returns: 2.4 },
@@ -41,7 +63,7 @@ export default function VisualizationPanel({
     { month: "Oct", returns: 3.1 },
     { month: "Nov", returns: 2.3 },
     { month: "Dec", returns: 1.9 },
-  ]
+  ];
 
   const comparisonData = [
     { name: "Fund A", returns: 12.5, risk: 8.2 },
@@ -49,7 +71,7 @@ export default function VisualizationPanel({
     { name: "Fund C", returns: 15.2, risk: 10.1 },
     { name: "Fund D", returns: 7.6, risk: 4.3 },
     { name: "Fund E", returns: 11.3, risk: 7.8 },
-  ]
+  ];
 
   const sectorData = [
     { name: "Financial", allocation: 28 },
@@ -59,24 +81,50 @@ export default function VisualizationPanel({
     { name: "Industrial", allocation: 10 },
     { name: "Energy", allocation: 8 },
     { name: "Others", allocation: 5 },
-  ]
+  ];
 
   const renderChart = () => {
+    const isDarkTheme = document.documentElement.classList.contains("dark");
+    const gridColor = isDarkTheme ? "#333" : "#e5e7eb";
+    const axisColor = isDarkTheme ? "#666" : "#9ca3af";
+    const tooltipBg = isDarkTheme ? "#222" : "#fff";
+    const tooltipBorder = isDarkTheme ? "#444" : "#e5e7eb";
+    const tooltipTextColor = isDarkTheme ? "#fff" : "#111";
+
     switch (activeChartType) {
       case "performance":
         return (
           <ResponsiveContainer width="100%" height="100%" minHeight={200}>
-            <LineChart data={performanceData} margin={{ top: 20, right: 10, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-              <XAxis dataKey="month" stroke="#666" tick={{ fontSize: "0.75rem" }} />
-              <YAxis stroke="#666" tick={{ fontSize: "0.75rem" }} />
-              <Tooltip contentStyle={{ backgroundColor: "#222", borderColor: "#444" }} labelStyle={{ color: "#fff" }} />
-              <Line type="monotone" dataKey="returns" stroke="#10b981" activeDot={{ r: 6 }} dot={{ fill: "#10b981", r: 3 }} />
+            <LineChart
+              data={performanceData}
+              margin={{ top: 20, right: 10, left: 0, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+              <XAxis
+                dataKey="month"
+                stroke={axisColor}
+                tick={{ fontSize: "0.75rem" }}
+              />
+              <YAxis stroke={axisColor} tick={{ fontSize: "0.75rem" }} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: tooltipBg,
+                  borderColor: tooltipBorder,
+                }}
+                labelStyle={{ color: tooltipTextColor }}
+              />
+              <Line
+                type="monotone"
+                dataKey="returns"
+                stroke="#10b981"
+                activeDot={{ r: 6 }}
+                dot={{ fill: "#10b981", r: 3 }}
+              />
             </LineChart>
           </ResponsiveContainer>
-        )
+        );
       case "candlestick":
-        return <CustomCandlestickChart />
+        return <CustomCandlestickChart />;
       case "comparison":
         return (
           <ChartContainer
@@ -92,16 +140,19 @@ export default function VisualizationPanel({
             }}
             className="min-h-[300px]"
           >
-            <BarChart data={comparisonData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-              <XAxis dataKey="name" stroke="#666" />
-              <YAxis stroke="#666" />
+            <BarChart
+              data={comparisonData}
+              margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+              <XAxis dataKey="name" stroke={axisColor} />
+              <YAxis stroke={axisColor} />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Bar dataKey="returns" fill="hsl(142, 76%, 36%)" />
               <Bar dataKey="risk" fill="hsl(0, 84%, 60%)" />
             </BarChart>
           </ChartContainer>
-        )
+        );
       case "sectors":
         return (
           <ChartContainer
@@ -113,66 +164,121 @@ export default function VisualizationPanel({
             }}
             className="min-h-[300px]"
           >
-            <BarChart data={sectorData} layout="vertical" margin={{ top: 20, right: 30, left: 50, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-              <XAxis type="number" stroke="#666" />
-              <YAxis dataKey="name" type="category" stroke="#666" />
+            <BarChart
+              data={sectorData}
+              layout="vertical"
+              margin={{ top: 20, right: 30, left: 50, bottom: 0 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+              <XAxis type="number" stroke={axisColor} />
+              <YAxis dataKey="name" type="category" stroke={axisColor} />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Bar dataKey="allocation" fill="hsl(47, 96%, 53%)" />
             </BarChart>
           </ChartContainer>
-        )
+        );
       default:
-        return <div className="flex items-center justify-center h-full">Select a chart type</div>
+        return (
+          <div className="flex items-center justify-center h-full">
+            Select a chart type
+          </div>
+        );
     }
-  }
+  };
 
   return (
     <div className="h-full p-2 sm:p-4 overflow-y-auto">
-      <Card className="bg-zinc-900 border-zinc-800 h-full shadow-lg">
-        <CardHeader className="pb-2 border-b border-zinc-800">
+      <Card className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 h-full shadow-lg">
+        <CardHeader className="pb-2 border-b border-gray-200 dark:border-zinc-800">
           <div className="flex flex-wrap justify-between items-center gap-2">
-            <CardTitle className="text-base sm:text-lg flex items-center">
-              {selectedFundData 
-                ? <span className="flex items-center gap-2 truncate max-w-[calc(100vw-120px)]">
-                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 flex-shrink-0"></span>
-                    <span className="truncate">{selectedFundData.name}</span>
-                  </span> 
-                : <span className="text-zinc-400">Select a Fund to Visualize</span>
-              }
+            <CardTitle className="text-base sm:text-lg flex items-center text-gray-900 dark:text-white">
+              {selectedFundData ? (
+                <span className="flex items-center gap-2 truncate max-w-[calc(100vw-120px)]">
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 flex-shrink-0"></span>
+                  <span className="truncate">{selectedFundData.name}</span>
+                </span>
+              ) : (
+                <span className="text-gray-500 dark:text-zinc-400">
+                  Select a Fund to Visualize
+                </span>
+              )}
             </CardTitle>
-            <Button variant="outline" size="icon" className="hover:bg-zinc-800 transition-colors flex-shrink-0">
+            <Button
+              variant="outline"
+              size="icon"
+              className="hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors flex-shrink-0"
+            >
               <Download className="h-4 w-4" />
             </Button>
           </div>
         </CardHeader>
         <CardContent className="flex flex-col h-[calc(100%-60px)] pt-4 overflow-hidden">
           {!selectedFundData && (
-            <div className="flex flex-col items-center justify-center flex-1 py-8 text-zinc-400">
-              <svg className="h-10 w-10 sm:h-12 sm:w-12 mb-2 opacity-50" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 12l3-3m0 0l3 3m-3-3v7m6-6l3 3m0 0l3-3m-3 3V6" />
+            <div className="flex flex-col items-center justify-center flex-1 py-8 text-gray-500 dark:text-zinc-400">
+              <svg
+                className="h-10 w-10 sm:h-12 sm:w-12 mb-2 opacity-50"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M7 12l3-3m0 0l3 3m-3-3v7m6-6l3 3m0 0l3-3m-3 3V6"
+                />
               </svg>
-              <p className="text-center text-sm sm:text-base px-2">Please select a fund from the sidebar to see visualization data</p>
+              <p className="text-center text-sm sm:text-base px-2">
+                Please select a fund from the sidebar to see visualization data
+              </p>
             </div>
           )}
           {selectedFundData && (
-            <Tabs defaultValue="performance" value={activeChartType} onValueChange={setActiveChartType} className="flex flex-col flex-1 overflow-hidden">
+            <Tabs
+              defaultValue="performance"
+              value={activeChartType}
+              onValueChange={setActiveChartType}
+              className="flex flex-col flex-1 overflow-hidden"
+            >
               <div className="overflow-x-auto pb-1">
-                <TabsList className="bg-zinc-800 mb-2 sm:mb-4 p-1 gap-1 w-max min-w-full">
-                  <TabsTrigger value="performance" className="data-[state=active]:bg-zinc-700 text-xs sm:text-sm">Performance</TabsTrigger>
-                  <TabsTrigger value="candlestick" className="data-[state=active]:bg-zinc-700 text-xs sm:text-sm">Candlestick</TabsTrigger>
-                  <TabsTrigger value="comparison" className="data-[state=active]:bg-zinc-700 text-xs sm:text-sm">Comparison</TabsTrigger>
-                  <TabsTrigger value="sectors" className="data-[state=active]:bg-zinc-700 text-xs sm:text-sm">Sectors</TabsTrigger>
+                <TabsList className="bg-gray-100 dark:bg-zinc-800 mb-2 sm:mb-4 p-1 gap-1 w-max min-w-full">
+                  <TabsTrigger
+                    value="performance"
+                    className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700 text-xs sm:text-sm"
+                  >
+                    Performance
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="candlestick"
+                    className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700 text-xs sm:text-sm"
+                  >
+                    Candlestick
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="comparison"
+                    className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700 text-xs sm:text-sm"
+                  >
+                    Comparison
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="sectors"
+                    className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700 text-xs sm:text-sm"
+                  >
+                    Sectors
+                  </TabsTrigger>
                 </TabsList>
               </div>
-              <div className="flex-1 min-h-[200px] w-full overflow-hidden">{renderChart()}</div>
+              <div className="flex-1 min-h-[200px] w-full overflow-hidden">
+                {renderChart()}
+              </div>
             </Tabs>
           )}
-          
+
           {selectedFundData && (
             <div className="flex flex-wrap justify-between mt-4 gap-2">
               <Select defaultValue={activeTimeframe}>
-                <SelectTrigger className="w-full sm:w-auto min-w-[120px] bg-zinc-900 border-zinc-700 hover:border-zinc-600 transition-colors text-sm">
+                <SelectTrigger className="w-full sm:w-auto min-w-[120px] bg-white dark:bg-zinc-900 border-gray-300 dark:border-zinc-700 hover:border-gray-400 dark:hover:border-zinc-600 transition-colors text-sm">
                   <SelectValue placeholder="Time Period" />
                 </SelectTrigger>
                 <SelectContent>
@@ -185,7 +291,7 @@ export default function VisualizationPanel({
                 </SelectContent>
               </Select>
               <Select defaultValue="agent1">
-                <SelectTrigger className="w-full sm:w-auto min-w-[120px] bg-zinc-900 border-zinc-700 hover:border-zinc-600 transition-colors text-sm">
+                <SelectTrigger className="w-full sm:w-auto min-w-[120px] bg-white dark:bg-zinc-900 border-gray-300 dark:border-zinc-700 hover:border-gray-400 dark:hover:border-zinc-600 transition-colors text-sm">
                   <SelectValue placeholder="Agent" />
                 </SelectTrigger>
                 <SelectContent>
@@ -199,5 +305,5 @@ export default function VisualizationPanel({
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

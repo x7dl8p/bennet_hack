@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { createChart } from "lightweight-charts"
+import { createChart, ColorType, IChartApi } from "lightweight-charts"
+import { useTheme } from "next-themes"
 
 interface CandlestickData {
   time: string
@@ -13,7 +14,8 @@ interface CandlestickData {
 
 export default function CandlestickChart() {
   const chartContainerRef = useRef<HTMLDivElement>(null)
-  const chartRef = useRef<any>(null)
+  const chartRef = useRef<IChartApi | null>(null)
+  const { theme } = useTheme() // Get the current theme
 
   // Sample data for the candlestick chart
   const candlestickData: CandlestickData[] = [
@@ -40,74 +42,94 @@ export default function CandlestickChart() {
   ]
 
   useEffect(() => {
-    if (chartContainerRef.current && !chartRef.current) {
-      const chart = createChart(chartContainerRef.current, {
-        width: chartContainerRef.current.clientWidth,
-        height: 300,
-        layout: {
-          background: { color: "#1e1e1e" },
-          textColor: "#d1d4dc",
-        },
-        grid: {
-          vertLines: {
-            color: "#2e2e2e",
-          },
-          horzLines: {
-            color: "#2e2e2e",
-          },
-        },
-        timeScale: {
-          borderColor: "#2e2e2e",
-          timeVisible: true,
-        },
-        rightPriceScale: {
-          borderColor: "#2e2e2e",
-        },
-      })
+    if (!chartContainerRef.current) return;
 
-      // Create a candlestick series
+    const isDark = theme === 'dark';
+
+    // Define chart options based on theme
+    const chartOptions = {
+      width: chartContainerRef.current.clientWidth,
+      height: 300,
+      layout: {
+        background: { color: isDark ? "#1e1e1e" : "#ffffff", type: ColorType.Solid },
+        textColor: isDark ? "#d1d4dc" : "#333333",
+      },
+      grid: {
+        vertLines: {
+          color: isDark ? "#2e2e2e" : "#e5e5e5",
+        },
+        horzLines: {
+          color: isDark ? "#2e2e2e" : "#e5e5e5",
+        },
+      },
+      timeScale: {
+        borderColor: isDark ? "#2e2e2e" : "#cccccc",
+        timeVisible: true,
+      },
+      rightPriceScale: {
+        borderColor: isDark ? "#2e2e2e" : "#cccccc",
+      },
+      watermark: {
+        visible: true,
+        fontSize: 24,
+        horzAlign: "center",
+        vertAlign: "center",
+        color: isDark ? "rgba(171, 71, 188, 0.3)" : "rgba(171, 71, 188, 0.1)",
+        text: "Historical Candlestick Chart",
+      },
+    };
+
+    // If chart exists, update options; otherwise, create it
+    if (chartRef.current) {
+      chartRef.current.applyOptions(chartOptions);
+    } else {
+      const chart: IChartApi = createChart(chartContainerRef.current, chartOptions);
+      chartRef.current = chart;
+
+      // Create a candlestick series (only needs to be added once)
       const series = chart.addCandlestickSeries({
-        upColor: "#4caf50",
-        downColor: "#ef5350",
+        upColor: isDark ? "#00bda4" : "#26a69a", // Adjusted for theme
+        downColor: isDark ? "#ff6868" : "#ef5350", // Adjusted for theme
         borderVisible: false,
-        wickUpColor: "#4caf50",
-        wickDownColor: "#ef5350",
-      })
-
-      // Set the data
-      series.setData(candlestickData)
-
-      // Add a title
-      chart.applyOptions({
-        watermark: {
-          visible: true,
-          fontSize: 24,
-          horzAlign: "center",
-          vertAlign: "center",
-          color: "rgba(171, 71, 188, 0.3)",
-          text: "Historical Candlestick Chart",
-        },
-      })
-
-      // Handle resize
-      const handleResize = () => {
-        if (chartContainerRef.current) {
-          chart.applyOptions({
-            width: chartContainerRef.current.clientWidth,
-          })
-        }
-      }
-
-      window.addEventListener("resize", handleResize)
-      chartRef.current = chart
-
-      return () => {
-        window.removeEventListener("resize", handleResize)
-        chart.remove()
-        chartRef.current = null
-      }
+        wickUpColor: isDark ? "#00bda4" : "#26a69a", // Adjusted for theme
+        wickDownColor: isDark ? "#ff6868" : "#ef5350", // Adjusted for theme
+      });
+      series.setData(candlestickData);
     }
-  }, [])
 
-  return <div ref={chartContainerRef} className="w-full h-full" />
+    // Handle resize
+    const handleResize = () => {
+      if (chartContainerRef.current && chartRef.current) {
+        chartRef.current.applyOptions({
+          width: chartContainerRef.current.clientWidth,
+        });
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup function
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      // Don't remove the chart here if you want it to persist across theme changes
+      // If you want to recreate the chart on theme change, uncomment the cleanup below
+      // if (chartRef.current) {
+      //   chartRef.current.remove();
+      //   chartRef.current = null;
+      // }
+    };
+  }, [theme, candlestickData]); // Re-run effect when theme or data changes
+
+  // Cleanup chart on component unmount
+  useEffect(() => {
+    return () => {
+      if (chartRef.current) {
+        chartRef.current.remove();
+        chartRef.current = null;
+      }
+    };
+  }, []);
+
+
+  return <div ref={chartContainerRef} className="w-full h-[300px]" />; // Ensure height is applied
 }
