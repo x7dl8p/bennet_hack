@@ -21,7 +21,7 @@ export default function Dashboard() {
     useState<MutualFundData[]>(sampleData);
   const [selectedFund, setSelectedFund] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(true);
   const [activeTimeframe, setActiveTimeframe] = useState<string>("1y");
   const [activeChartType, setActiveChartType] = useState<string>("performance");
   const [activeDataSource, setActiveDataSource] = useState<string>("amfi");
@@ -48,7 +48,7 @@ export default function Dashboard() {
       <div className="flex flex-1 overflow-hidden">
         <ResizablePanelGroup direction="horizontal">
           <ResizablePanel
-            defaultSize={20}
+            defaultSize={sidebarCollapsed ? 4 : 20}
             minSize={10}
             maxSize={30}
             collapsible={true}

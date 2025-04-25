@@ -50,7 +50,7 @@ export default function ChatPanel({
       id: "1",
       role: "assistant",
       content:
-        "Hello! I'm SEER AI powered by Gemini. How can I help you analyze Indian mutual funds today?, i am trained by SEER AI corporation on AMFI data and Kaggle datasets.",
+        "Hello! I'm SEER AI powered by Gemini. How can I help you analyze Indian mutual funds today?",
       timestamp: new Date(),
     },
   ]);
