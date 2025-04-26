@@ -13,19 +13,19 @@ import ChatPanel from "@/components/chat-panel";
 import type {
   MutualFundData,
   MutualFundDisplayData,
-  // PerformanceDataPoint, // Assuming API returns data in MutualFundDisplayData format
-  // CandlestickDataPoint, // Assuming API returns data in MutualFundDisplayData format
+  
+  
   FundDetails,
 } from "@/lib/types";
-// import { sampleData } from "@/lib/sample-data"; // Remove sample data import
-import { cn } from "@/lib/utils";
-import ApiManager from "@/lib/api-manager"; // Import ApiManager
 
-// --- Mock API Fetch Functions Removed ---
+import { cn } from "@/lib/utils";
+import ApiManager from "@/lib/api-manager"; 
+
+
 
 export default function Dashboard() {
   const [activeView, setActiveView] = useState<string>("overview");
-  // Rename fundList state to mutualFundData and update type
+  
   const [mutualFundData, setMutualFundData] = useState<MutualFundData[]>([]);
   const [selectedFundId, setSelectedFundId] = useState<string | null>(null);
   const [selectedFundData, setSelectedFundData] =
@@ -43,22 +43,31 @@ export default function Dashboard() {
       setIsLoading(true);
       setError(null);
       try {
-        // Use ApiManager to fetch fund list (assuming endpoint is 'funds')
+        
         const funds = await ApiManager.makeRequest("funds");
-        console.log("[DEBUG] Raw API Response (Fund List):", JSON.stringify(funds)); // Log raw response
-        let dataToSet: MutualFundData[] = []; // Initialize with empty array
-        // Check if the response is an array before setting state
+        console.log(
+          "[DEBUG] Raw API Response (Fund List):",
+          JSON.stringify(funds)
+        ); 
+        let dataToSet: MutualFundData[] = []; 
+        
         if (Array.isArray(funds)) {
           dataToSet = funds;
         } else if (funds && Array.isArray(funds.data)) {
-          // Example: Check if data is nested under a 'data' property
+          
           console.log("[DEBUG] Extracting data from 'funds.data'");
           dataToSet = funds.data;
         } else {
-          console.warn("[DEBUG] API response for fund list was not a recognized array structure:", funds);
-          // dataToSet remains []
+          console.warn(
+            "[DEBUG] API response for fund list was not a recognized array structure:",
+            funds
+          );
+          
         }
-        console.log("[DEBUG] Data being set to mutualFundData state:", JSON.stringify(dataToSet));
+        console.log(
+          "[DEBUG] Data being set to mutualFundData state:",
+          JSON.stringify(dataToSet)
+        );
         setMutualFundData(dataToSet);
       } catch (err) {
         console.error("Error fetching fund list via API:", err);
@@ -81,17 +90,20 @@ export default function Dashboard() {
     setIsLoading(true);
     setError(null);
     try {
-      // Construct endpoint dynamically
+      
       const endpoint = `funds/${selectedFundId}?timeframe=${activeTimeframe}&chartType=${activeChartType}`;
       console.log(`Calling API endpoint: ${endpoint}`);
-      const data: MutualFundDisplayData = await ApiManager.makeRequest(endpoint); // Assuming API returns MutualFundDisplayData
-      console.log(`API Response (Fund Data for ${selectedFundId}):`, data); // Log API response
+      const data: MutualFundDisplayData = await ApiManager.makeRequest(
+        endpoint
+      ); 
+      console.log(`API Response (Fund Data for ${selectedFundId}):`, data); 
       setSelectedFundData(data);
     } catch (err) {
-      console.error(`Error fetching fund data for ${selectedFundId} via API:`, err);
-      setError(
-        err instanceof Error ? err.message : "Failed to load fund data"
+      console.error(
+        `Error fetching fund data for ${selectedFundId} via API:`,
+        err
       );
+      setError(err instanceof Error ? err.message : "Failed to load fund data");
       setSelectedFundData(null);
     } finally {
       setIsLoading(false);
@@ -110,16 +122,16 @@ export default function Dashboard() {
     setSelectedFundId(fundId);
   };
 
-  // Placeholder handler for data upload
+  
   const handleDataUpload = (newData: MutualFundData[]) => {
     console.log("New data uploaded:", newData);
-    // Here you might want to merge newData with existing mutualFundData
-    // For now, let's just replace it for simplicity
+    
+    
     setMutualFundData(newData);
-    // Optionally, clear selection or navigate
+    
     setSelectedFundId(null);
     setSelectedFundData(null);
-    setActiveView("overview"); // Switch back to overview after upload
+    setActiveView("overview"); 
   };
 
   const toggleSidebar = () => {
@@ -165,12 +177,12 @@ export default function Dashboard() {
             {/* Removed Vertical ResizablePanelGroup and VisualizationPanel */}
             <MainContent
               activeView={activeView}
-              mutualFundData={mutualFundData} // Pass mutualFundData
+              mutualFundData={mutualFundData} 
               selectedFundId={selectedFundId}
               selectedFundDetails={selectedFundData?.details}
               onFundSelect={handleFundSelect}
-              onDataUpload={handleDataUpload} // Pass onDataUpload handler
-              isLoading={isLoading && !selectedFundId} // Adjust loading state logic if needed
+              onDataUpload={handleDataUpload} 
+              isLoading={isLoading && !selectedFundId} 
               activeTimeframe={activeTimeframe}
               setActiveTimeframe={setActiveTimeframe}
             />

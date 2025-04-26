@@ -1,31 +1,31 @@
 export interface MutualFundData {
-  id: string
-  name: string
-  category: string
-  aum: number // Assets Under Management in Crores
-  nav: number // Net Asset Value
-  expenseRatio: number
+  id: string;
+  name: string;
+  category: string;
+  aum: number; // Assets Under Management in Crores
+  nav: number; // Net Asset Value
+  expenseRatio: number;
   // Replace individual returns with a nested object
   returns: {
-    '1y': number;
-    '3y': number;
-    '5y': number;
+    "1y": number;
+    "3y": number;
+    "5y": number;
   };
-  riskLevel: string // Low, Moderate, High
-  sectors?: { name: string; allocation: number }[]
-  holdings?: { name: string; percentage: number }[]
-  inceptionDate: string
-  fundManager?: string
-  benchmark?: string
+  riskLevel: string; // Low, Moderate, High
+  sectors?: { name: string; allocation: number }[];
+  holdings?: { name: string; percentage: number }[];
+  inceptionDate: string;
+  fundManager?: string;
+  benchmark?: string;
 }
 
 export interface RAGDocument {
-  id: string
-  title: string
-  content: string
-  type: "pdf" | "txt" | "docx"
-  uploadDate: string
-  fileSize: number
+  id: string;
+  title: string;
+  content: string;
+  type: "pdf" | "txt" | "docx";
+  uploadDate: string;
+  fileSize: number;
 }
 
 export interface PerformanceDataPoint {
