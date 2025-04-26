@@ -103,6 +103,10 @@ export default function MainContent({
   const [isSearching, setIsSearching] = useState(false);
   const [displayCount, setDisplayCount] = useState(20); // State for pagination
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+
   // Filter funds - Add check to ensure mutualFundData is an array
   const filteredFunds = Array.isArray(mutualFundData)
     ? mutualFundData.filter((fund) => {
@@ -114,8 +118,11 @@ export default function MainContent({
       })
     : []; // Default to empty array if mutualFundData is not an array
 
-  // Slice the filtered funds for pagination
-  const fundsToDisplay = filteredFunds.slice(0, displayCount);
+  // Pagination calculations
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const fundsToDisplay = filteredFunds.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(filteredFunds.length / itemsPerPage);
 
   // Fetch research data when a fund is selected
   useEffect(() => {
@@ -328,23 +335,42 @@ export default function MainContent({
               </Card>
             </div>
 
-            <FundList
-              funds={filteredFunds}
-              selectedFund={selectedFundId}
-              onFundSelect={onFundSelect}
-            />
-            {/* Load More Button */}
-            {filteredFunds.length > displayCount && (
-              <div className="mt-4 text-center">
-                <Button
-                  variant="outline"
-                  onClick={() => setDisplayCount((prevCount: number) => prevCount + 20)} // Increase count by 20 - Add type
-                  className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-800"
-                >
-                  Load More Funds ({fundsToDisplay.length} / {filteredFunds.length})
-                </Button>
-              </div>
-            )}
+            <>
+              <FundList
+                funds={fundsToDisplay}
+                selectedFund={selectedFundId}
+                onFundSelect={onFundSelect}
+              />
+              
+              {/* Pagination Controls */}
+              {filteredFunds.length > itemsPerPage && (
+                <div className="mt-4 flex justify-between items-center">
+                  <div className="text-sm text-gray-600 dark:text-zinc-400">
+                    Showing {startIndex + 1} - {Math.min(endIndex, filteredFunds.length)} of {filteredFunds.length} funds
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                      className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700"
+                      size="sm"
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                      className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700"
+                      size="sm"
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
           </div>
         );
       // Rest of the switch cases remain unchanged...
