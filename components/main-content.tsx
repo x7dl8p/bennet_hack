@@ -143,6 +143,11 @@ export default function MainContent({
     ? ["all", ...Array.from(new Set(mutualFundData.map((fund) => fund?.riskLevel).filter(Boolean)))] // Filter out null/undefined
     : ["all"];
 
+  // Find the selected fund's data from the main list
+  const selectedFundData = Array.isArray(mutualFundData)
+    ? mutualFundData.find(fund => fund.id === selectedFundId)
+    : undefined;
+
   const renderContent = () => {
     switch (activeView) {
       case "overview":
@@ -234,31 +239,22 @@ export default function MainContent({
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-sm font-medium text-gray-900 dark:text-white">
-                      {researchData.researchCharts?.navTrend?.title || "NAV Trend"}
+                      Current NAV
                     </CardTitle>
                     <TrendingUp className="h-4 w-4 text-gray-400 dark:text-zinc-400" />
                   </div>
                   <CardDescription className="text-xs text-gray-500 dark:text-zinc-400">
-                    {researchData.researchCharts?.navTrend?.description || "Net Asset Value over time"}
+                    Latest Net Asset Value (Snapshot)
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="p-0">
-                  {isResearchLoading ? (
-                    <div className="h-[150px] w-full p-2 flex items-center justify-center">
-                      <Loader2 className="h-5 w-5 animate-spin text-gray-400 dark:text-zinc-400" />
-                    </div>
-                  ) : researchData.researchCharts?.navTrend?.dataPoints ? (
-                    <div className="h-[150px] w-full p-4 flex flex-col">
-                      <div className="text-xs italic text-gray-600 dark:text-zinc-300 mb-2">
-                        {researchData.researchCharts.navTrend.insights}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-zinc-400 mt-auto">
-                        {`${researchData.researchCharts.navTrend.dataPoints.length} data points available`}
-                      </div>
+                <CardContent className="h-[150px] flex items-center justify-center p-4">
+                  {selectedFundData ? (
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                      ₹{(selectedFundData.nav ?? 0).toFixed(2)}
                     </div>
                   ) : (
-                    <div className="h-[150px] w-full p-2 flex items-center justify-center text-gray-500 dark:text-zinc-400 text-sm">
-                      {selectedFundId ? "Select a timeframe to view NAV data" : "Select a fund to view NAV data"}
+                    <div className="text-gray-500 dark:text-zinc-400 text-sm">
+                      Select a fund
                     </div>
                   )}
                 </CardContent>
@@ -269,31 +265,22 @@ export default function MainContent({
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-sm font-medium text-gray-900 dark:text-white">
-                      {researchData.researchCharts?.aumGrowth?.title || "AUM Growth"}
+                      Current AUM
                     </CardTitle>
                     <AreaChart className="h-4 w-4 text-gray-400 dark:text-zinc-400" />
                   </div>
                   <CardDescription className="text-xs text-gray-500 dark:text-zinc-400">
-                    {researchData.researchCharts?.aumGrowth?.description || "Assets Under Management"}
+                    Assets Under Management (Snapshot)
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="p-0">
-                  {isResearchLoading ? (
-                    <div className="h-[150px] w-full p-2 flex items-center justify-center">
-                      <Loader2 className="h-5 w-5 animate-spin text-gray-400 dark:text-zinc-400" />
-                    </div>
-                  ) : researchData.researchCharts?.aumGrowth?.dataPoints ? (
-                    <div className="h-[150px] w-full p-4 flex flex-col">
-                      <div className="text-xs italic text-gray-600 dark:text-zinc-300 mb-2">
-                        {researchData.researchCharts.aumGrowth.insights}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-zinc-400 mt-auto">
-                        {`${researchData.researchCharts.aumGrowth.dataPoints.length} data points available`}
-                      </div>
+                <CardContent className="h-[150px] flex items-center justify-center p-4">
+                   {selectedFundData ? (
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                      ₹{(selectedFundData.aum ?? 0).toLocaleString()} Cr
                     </div>
                   ) : (
-                    <div className="h-[150px] w-full p-2 flex items-center justify-center text-gray-500 dark:text-zinc-400 text-sm">
-                      {selectedFundId ? "Select a timeframe to view AUM data" : "Select a fund to view AUM data"}
+                    <div className="text-gray-500 dark:text-zinc-400 text-sm">
+                      Select a fund
                     </div>
                   )}
                 </CardContent>
@@ -304,31 +291,33 @@ export default function MainContent({
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-sm font-medium text-gray-900 dark:text-white">
-                      {researchData.researchCharts?.riskReturn?.title || "Risk vs. Return"}
+                      Risk & 1Y Return
                     </CardTitle>
                     <BarChart3 className="h-4 w-4 text-gray-400 dark:text-zinc-400" />
                   </div>
                   <CardDescription className="text-xs text-gray-500 dark:text-zinc-400">
-                    {researchData.researchCharts?.riskReturn?.description || "Comparative analysis"}
+                    Categorical Risk and 1-Year Return
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="p-0">
-                  {isResearchLoading ? (
-                    <div className="h-[150px] w-full p-2 flex items-center justify-center">
-                      <Loader2 className="h-5 w-5 animate-spin text-gray-400 dark:text-zinc-400" />
-                    </div>
-                  ) : researchData.researchCharts?.riskReturn?.dataPoints ? (
-                    <div className="h-[150px] w-full p-4 flex flex-col">
-                      <div className="text-xs italic text-gray-600 dark:text-zinc-300 mb-2">
-                        {researchData.researchCharts.riskReturn.insights}
+                <CardContent className="h-[150px] flex flex-col items-center justify-center p-4 space-y-2">
+                  {selectedFundData ? (
+                    <>
+                      <div className="text-center">
+                        <div className="text-xs text-gray-500 dark:text-zinc-400">Risk Level</div>
+                        <div className="text-lg font-medium text-gray-900 dark:text-white">
+                          {selectedFundData.riskLevel || "N/A"}
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-zinc-400 mt-auto">
-                        {`Comparing ${researchData.researchCharts.riskReturn.dataPoints.length} funds`}
+                      <div className="text-center">
+                        <div className="text-xs text-gray-500 dark:text-zinc-400">1Y Return</div>
+                        <div className={`text-lg font-medium ${ (selectedFundData.returns?.['1y'] ?? 0) >= 0 ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
+                          {(selectedFundData.returns?.['1y'] ?? 0).toFixed(2)}%
+                        </div>
                       </div>
-                    </div>
+                    </>
                   ) : (
-                    <div className="h-[150px] w-full p-2 flex items-center justify-center text-gray-500 dark:text-zinc-400 text-sm">
-                      {selectedFundId ? "Select a timeframe to view risk/return data" : "Select a fund to view risk/return data"}
+                    <div className="text-gray-500 dark:text-zinc-400 text-sm">
+                      Select a fund
                     </div>
                   )}
                 </CardContent>
