@@ -1,8 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react"; // Re-add useEffect for API calls
+import { useState, useEffect } from "react";
+import { format } from "date-fns"; // For date formatting
+import { Calendar as CalendarIcon, Loader2, Search, TrendingUp, AreaChart, BarChart3 } from "lucide-react"; // Icon for date picker & others
+import { cn } from "@/lib/utils"; // Utility for class names
 import type { MutualFundData, FundDetails } from "@/lib/types";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"; // Already imported
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -12,6 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar"; // Calendar component
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"; // Popover for calendar
 import {
   Card,
   CardContent,
@@ -20,10 +25,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Search, TrendingUp, AreaChart, BarChart3 } from "lucide-react"; // Added icons
 import FundList from "@/components/fund-list";
 import RagUploader from "@/components/rag-uploader";
-import ApiManager from "@/lib/api-manager"; // Import ApiManager
+import ApiManager from "@/lib/api-manager";
 
 // Define type for AI research data
 interface ResearchChartData {
@@ -88,6 +92,7 @@ export default function MainContent({
   const [queryText, setQueryText] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedRisk, setSelectedRisk] = useState<string>("all");
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined); // State for date filter
   
   // State for AI research data (overview cards)
   const [researchData, setResearchData] = useState<ResearchChartData>({});
@@ -183,6 +188,43 @@ export default function MainContent({
                   ))}
                 </SelectContent>
               </Select>
+              {/* Date Picker */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-[240px] justify-start text-left font-normal bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700", // Added background/border
+                      !selectedDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {selectedDate ? format(selectedDate, "PPP") : <span>Incepted before...</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800" align="start"> {/* Added background/border */}
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    initialFocus
+                    disabled={(date: Date) => // Disable future dates - Add type for date
+                      date > new Date() || date < new Date("1900-01-01")
+                    }
+                  />
+                   {/* Add a button to clear the date */}
+                   {selectedDate && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedDate(undefined)}
+                        className="w-full mt-1 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800" // Style clear button
+                      >
+                        Clear Date
+                      </Button>
+                    )}
+                </PopoverContent>
+              </Popover>
             </div>
 
             {/* Research Cards - now with AI data integration */}
