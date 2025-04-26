@@ -50,22 +50,25 @@ export default function FundList({
               <Badge
                 className={cn(
                   "ml-2",
-                  fund.oneYearReturn > 15
+                  // Use fund.returns['1y'] and add safety check/default value
+                  (fund.returns?.['1y'] ?? 0) > 15
                     ? "bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-500 hover:bg-green-200 dark:hover:bg-green-500/30"
-                    : fund.oneYearReturn > 0
+                    : (fund.returns?.['1y'] ?? 0) > 0
                     ? "bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-500 hover:bg-yellow-200 dark:hover:bg-yellow-500/30"
                     : "bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-500 hover:bg-red-200 dark:hover:bg-red-500/30"
                 )}
               >
-                {fund.oneYearReturn > 0 ? "+" : ""}
-                {fund.oneYearReturn.toFixed(2)}%
+                {/* Use fund.returns['1y'] and add safety check/default value */}
+                {(fund.returns?.['1y'] ?? 0) > 0 ? "+" : ""}
+                {(fund.returns?.['1y'] ?? 0).toFixed(2)}%
               </Badge>
             </div>
             <div className="grid grid-cols-3 gap-2 mt-3 text-xs">
               <div>
                 <p className="text-gray-500 dark:text-zinc-400">AUM</p>
                 <p className="text-gray-900 dark:text-white">
-                  ₹{fund.aum.toLocaleString()} Cr
+                  {/* Add safety check for aum */}
+                  ₹{(fund.aum ?? 0).toLocaleString()} Cr
                 </p>
               </div>
               <div>
@@ -73,7 +76,8 @@ export default function FundList({
                   Expense Ratio
                 </p>
                 <p className="text-gray-900 dark:text-white">
-                  {fund.expenseRatio}%
+                  {/* Add safety check for expenseRatio */}
+                  {(fund.expenseRatio ?? 0).toFixed(2)}%
                 </p>
               </div>
               <div>

@@ -37,6 +37,7 @@ interface Message {
 interface ChatPanelProps {
   activeDataSource: string;
   setActiveDataSource: (source: string) => void;
+  selectedFundName?: string; // Add optional selectedFundName prop
 }
 
 const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
@@ -44,13 +45,16 @@ const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 export default function ChatPanel({
   activeDataSource,
   setActiveDataSource,
+  selectedFundName, // Destructure the new prop
 }: ChatPanelProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
       role: "assistant",
-      content:
-        "Hello! I'm SEER AI, How can I help you analyze Indian mutual funds today?",
+      // Optionally use selectedFundName in the initial message
+      content: selectedFundName
+        ? `Hello! I'm SEER AI. How can I help you analyze ${selectedFundName} today?`
+        : "Hello! I'm SEER AI. How can I help you analyze Indian mutual funds today?",
       timestamp: new Date(),
     },
   ]);
@@ -93,6 +97,10 @@ export default function ChatPanel({
         contextPrompt += `Answer based on insights derived from typical Kaggle datasets on mutual funds. `;
       } else if (activeDataSource === "custom") {
         contextPrompt += `Answer based on user-provided data (assume relevant context is given in the prompt). `;
+      }
+      // Optionally add selected fund context to the prompt
+      if (selectedFundName) {
+        contextPrompt += `The user is currently looking at the ${selectedFundName} fund. `;
       }
       contextPrompt += `User's question: ${currentInput}`;
 
@@ -138,7 +146,7 @@ export default function ChatPanel({
     return (
       <Card className="h-[90%] flex flex-col m-4 items-center justify-center bg-white dark:bg-[#0f0f0f] border-gray-200 dark:border-zinc-800">
         <p className="text-red-500 p-4 text-center">
-          Gemini API Key is missing. Please set NEXT_PUBLIC_GEMINI_API_KEY in your environment variables.
+          Modle API Key is missing check if the modle is up correctly, Please set NEXT_PUBLIC_GEMINI_API_KEY in your environment variables.
         </p>
       </Card>
     );
