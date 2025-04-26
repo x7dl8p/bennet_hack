@@ -101,6 +101,7 @@ export default function MainContent({
   // State for AI search results (insights tab)
   const [searchResults, setSearchResults] = useState<any>(null); // Use 'any' for now, refine based on actual API response
   const [isSearching, setIsSearching] = useState(false);
+  const [displayCount, setDisplayCount] = useState(20); // State for pagination
 
   // Filter funds - Add check to ensure mutualFundData is an array
   const filteredFunds = Array.isArray(mutualFundData)
@@ -112,6 +113,9 @@ export default function MainContent({
         return nameMatch && categoryMatch && riskMatch;
       })
     : []; // Default to empty array if mutualFundData is not an array
+
+  // Slice the filtered funds for pagination
+  const fundsToDisplay = filteredFunds.slice(0, displayCount);
 
   // Fetch research data when a fund is selected
   useEffect(() => {
@@ -329,6 +333,18 @@ export default function MainContent({
               selectedFund={selectedFundId}
               onFundSelect={onFundSelect}
             />
+            {/* Load More Button */}
+            {filteredFunds.length > displayCount && (
+              <div className="mt-4 text-center">
+                <Button
+                  variant="outline"
+                  onClick={() => setDisplayCount((prevCount: number) => prevCount + 20)} // Increase count by 20 - Add type
+                  className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-800"
+                >
+                  Load More Funds ({fundsToDisplay.length} / {filteredFunds.length})
+                </Button>
+              </div>
+            )}
           </div>
         );
       // Rest of the switch cases remain unchanged...
